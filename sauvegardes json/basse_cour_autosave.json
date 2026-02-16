@@ -189,5 +189,16 @@
             "Croissance": [],
             "Oeufs": []
         }
+    },
+    {
+        "nom": "Faucon 2",
+        "sexe": "Poule",
+        "naissance": "14/02/2026",
+        "mere": "Faucon",
+        "pere": "Rocco",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
     }
 ]
