@@ -200,5 +200,16 @@
             "Croissance": [],
             "Oeufs": []
         }
+    },
+    {
+        "nom": "Yamakazi",
+        "sexe": "Poule",
+        "naissance": "08/02/2026",
+        "mere": "Yama",
+        "pere": "Rocco",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
     }
 ]
