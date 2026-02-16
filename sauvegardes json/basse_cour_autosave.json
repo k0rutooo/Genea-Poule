@@ -178,5 +178,16 @@
             "Croissance": [],
             "Oeufs": []
         }
+    },
+    {
+        "nom": "nugget 2",
+        "sexe": "Poule",
+        "naissance": "16/02/2026",
+        "mere": "nugget",
+        "pere": "rocco",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
     }
 ]
