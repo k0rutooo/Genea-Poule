@@ -1,0 +1,182 @@
+[
+    {
+        "nom": "Rocco",
+        "sexe": "Coq",
+        "pere": "?",
+        "mere": "?",
+        "notes": "grand rocco",
+        "naissance": "",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Nugget",
+        "sexe": "Poule",
+        "pere": "Rocco",
+        "mere": "Chewbacca",
+        "notes": "",
+        "naissance": "21/06/2025",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Chewbacca",
+        "sexe": "Poule",
+        "pere": "?",
+        "mere": "?",
+        "naissance": "",
+        "notes": "",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Yama",
+        "sexe": "Poule",
+        "mere": "",
+        "pere": "",
+        "notes": "pond des oeufs bleu/vert et vole très bien (trop bien même)",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        },
+        "naissance": "02/01/2025"
+    },
+    {
+        "nom": "Conasse",
+        "sexe": "Poule",
+        "mere": "?",
+        "pere": "?",
+        "notes": "dernière représentante de sa générations, de la plus vieille générations qu'on ai encore",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        },
+        "naissance": ""
+    },
+    {
+        "nom": "Big Mama",
+        "sexe": "Poule",
+        "naissance": "",
+        "mere": "",
+        "pere": "",
+        "notes": "",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Kazi",
+        "sexe": "Poule",
+        "naissance": "12/11/2024",
+        "mere": "",
+        "pere": "",
+        "notes": "fais des oeufs bleu elle aussi",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Condor",
+        "sexe": "Poule",
+        "naissance": "",
+        "mere": "",
+        "pere": "",
+        "notes": "",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Omelette",
+        "sexe": "Poule",
+        "naissance": "02/02/2025",
+        "mere": "",
+        "pere": "",
+        "notes": "elle pond toujours pas",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Faucon",
+        "sexe": "Poule",
+        "naissance": "",
+        "mere": "",
+        "pere": "",
+        "notes": "",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Divo (changer)",
+        "sexe": "Poule",
+        "naissance": "15/12/2024",
+        "mere": "",
+        "pere": "",
+        "notes": "c'est un faux coq, on s'est fait arnaquer",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Faisan",
+        "sexe": "Poule",
+        "naissance": "",
+        "mere": "",
+        "pere": "",
+        "notes": "",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Mercredi",
+        "sexe": "Poule",
+        "naissance": "",
+        "mere": "",
+        "pere": "",
+        "notes": "",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Ukrainienne",
+        "sexe": "Poule",
+        "naissance": "",
+        "mere": "",
+        "pere": "",
+        "notes": "",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    },
+    {
+        "nom": "Roumaine",
+        "sexe": "Poule",
+        "naissance": "",
+        "mere": "",
+        "pere": "",
+        "notes": "",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
+    }
+]
