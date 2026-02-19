@@ -103,7 +103,9 @@
         "pere": "",
         "notes": "elle pond toujours pas",
         "photos": {
-            "Croissance": [],
+            "Croissance": [
+                "Omelette_Croissance_20260219_123856.jpg"
+            ],
             "Oeufs": []
         }
     },
