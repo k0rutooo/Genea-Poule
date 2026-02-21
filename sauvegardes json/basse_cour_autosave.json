@@ -100,7 +100,9 @@
         "pere": "",
         "notes": "fais des oeufs bleu elle aussi",
         "photos": {
-            "Croissance": [],
+            "Croissance": [
+                "Kazi_Croissance_20260221_164500.jpg"
+            ],
             "Oeufs": [
                 "Kazi_Oeufs_20260221_103322.jpg"
             ]
