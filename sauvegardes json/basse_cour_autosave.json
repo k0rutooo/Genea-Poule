@@ -19,7 +19,9 @@
         "notes": "",
         "naissance": "21/06/2025",
         "photos": {
-            "Croissance": [],
+            "Croissance": [
+                "Nugget_Croissance_20260221_103559.jpg"
+            ],
             "Oeufs": [
                 "Nugget_Oeufs_20260221_103406.jpg"
             ]
