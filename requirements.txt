@@ -1,3 +1,5 @@
 streamlit
 graphviz
 PyGithub
+Pillow
+streamlit-cropper
