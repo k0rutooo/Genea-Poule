@@ -201,19 +201,29 @@ with main_zone.container():
                                         st.session_state.poule_selectionnee = None
                                         st.rerun()
 
-                    with tab2:
-                        # GESTION DES PHOTOS (CONSERVÉE DU MOTEUR V2)
+                    with t2:
                         photos = p.get('photos', {"Croissance": [], "Oeufs": []})
                         if st.session_state.role == "admin":
-                            with st.expander("📤 Envoyer une photo depuis cet appareil"):
-                                up_file = st.file_uploader("Choisir un fichier", type=['jpg', 'jpeg', 'png'])
+                            with st.expander("📤 Envoyer des photos (plusieurs possibles)"):
+                                # On active le multi-upload ici
+                                up_files = st.file_uploader("Choisir les fichiers", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
                                 album = st.selectbox("Album", ["Croissance", "Oeufs"])
-                                if up_file and st.button("Lancer l'envoi vers GitHub"):
-                                    f_name = f"{p['nom']}_{album}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
-                                    if upload_image_github(up_file.getvalue(), f_name):
-                                        photos[album].append(f_name)
+                                
+                                if up_files and st.button("Lancer l'envoi groupé"):
+                                    succes_count = 0
+                                    with st.spinner(f"Envoi de {len(up_files)} photos vers GitHub..."):
+                                        for up_file in up_files:
+                                            # On génère un nom unique pour chaque photo (nom + timestamp + index)
+                                            f_name = f"{p['nom']}_{album}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{succes_count}.jpg"
+                                            
+                                            if upload_image_github(up_file.getvalue(), f_name):
+                                                photos[album].append(f_name)
+                                                succes_count += 1
+                                    
+                                    # On ne sauvegarde le JSON qu'une seule fois à la fin de la boucle
+                                    if succes_count > 0:
                                         sauvegarder_donnees_github(st.session_state.basse_cour)
-                                        st.success("Image sauvegardée !")
+                                        st.success(f"✅ {succes_count} photo(s) ajoutée(s) avec succès !")
                                         st.rerun()
 
                         c1, c2 = st.columns(2)
