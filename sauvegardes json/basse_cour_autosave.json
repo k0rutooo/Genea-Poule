@@ -206,5 +206,16 @@
                 "Roumaine_Oeufs_20260221_103139.jpg"
             ]
         }
+    },
+    {
+        "nom": "Rocco",
+        "sexe": "Coq",
+        "naissance": "",
+        "mere": "?",
+        "pere": "?",
+        "photos": {
+            "Croissance": [],
+            "Oeufs": []
+        }
     }
 ]
