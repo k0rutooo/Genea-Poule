@@ -143,7 +143,7 @@ main_zone = st.empty()
 
 with main_zone.container():
     
-    # --- OPTION 1 : RECHERCHE ET FICHE ---
+    # --- OPTION 1 : CHERCHER UNE POULE (INTERFACE STYLE V1) ---
     if menu == "Chercher une poule":
         nom_defaut = st.session_state.get('poule_selectionnee', "")
         nom_cherche = st.text_input("Rechercher une poule :", value=nom_defaut)
@@ -153,30 +153,67 @@ with main_zone.container():
                 if p["nom"].lower() == nom_cherche.lower():
                     age_v = calculer_age_automatique(p.get('naissance', ''))
                     st.header(f"✨ FICHE DE {p['nom'].upper()}")
-                    t1, t2, t3 = st.tabs(["📄 Informations", "📸 Photos", "🌳 Lignée"])
+                    
+                    # RETOUR AUX NOMS D'ONGLETS V1
+                    tab1, tab2, tab3 = st.tabs(["📄 Informations", "📸 Albums Photos", "🌳 Généalogie"])
 
-                    with t1:
-                        st.write(f"**Sexe :** {p['sexe']} | **Âge :** {age_v if age_v is not None else '?'} an(s)")
-                        st.info(f"**Notes :** {p.get('notes', '...')}")
+                    with tab1:
+                        # AFFICHAGE INFOS STYLE V1
+                        st.write(f"**Sexe :** {p['sexe']}")
+                        st.write(f"**Âge :** {age_v if age_v is not None else '?'} an(s)")
+                        st.write(f"**Date de naissance :** {p.get('naissance', 'Non renseignée')}")
                         
+                        st.info(f"**Notes :** \n{p.get('notes', '...')}")
+                        
+                        # RETOUR DES BOUTONS ADMIN EN 2 COLONNES AVEC EXPANDERS
                         if st.session_state.role == "admin":
-                            if st.button(f"🗑️ Supprimer {p['nom']}"):
-                                st.session_state.basse_cour.pop(i)
-                                sauvegarder_donnees_github(st.session_state.basse_cour)
-                                st.rerun()
+                            c_mod, c_del = st.columns(2)
+                            with c_mod:
+                                with st.expander("📝 Modifier"):
+                                    with st.form(f"mod_{p['nom']}"):
+                                        ca, cb = st.columns(2)
+                                        n_nom = ca.text_input("Nom", value=p['nom'])
+                                        n_sexe = ca.selectbox("Sexe", ["Poule", "Coq"], index=0 if p.get('sexe') == "Poule" else 1)
+                                        n_naiss = ca.text_input("Naissance (JJ/MM/AAAA)", value=p.get('naissance', ''))
+                                        n_mere = cb.text_input("Mère", value=p.get('mere', ''))
+                                        n_pere = cb.text_input("Père", value=p.get('pere', ''))
+                                        n_notes = st.text_area("Notes", value=p.get('notes', ''))
+                                        if st.form_submit_button("Enregistrer les modifications"):
+                                            p.update({
+                                                "nom": n_nom, 
+                                                "sexe": n_sexe, 
+                                                "naissance": n_naiss, 
+                                                "mere": n_mere, 
+                                                "pere": n_pere, 
+                                                "notes": n_notes
+                                            })
+                                            sauvegarder_donnees_github(st.session_state.basse_cour)
+                                            st.session_state.poule_selectionnee = n_nom
+                                            st.success("Fiche mise à jour sur GitHub !")
+                                            st.rerun()
+                            
+                            with c_del:
+                                with st.expander("⚠️ Supprimer"):
+                                    st.write(f"Voulez-vous vraiment supprimer la fiche de {p['nom']} ?")
+                                    if st.button(f"Confirmer la suppression", key=f"del_{p['nom']}"):
+                                        st.session_state.basse_cour.pop(i)
+                                        sauvegarder_donnees_github(st.session_state.basse_cour)
+                                        st.session_state.poule_selectionnee = None
+                                        st.rerun()
 
-                    with t2:
+                    with tab2:
+                        # GESTION DES PHOTOS (CONSERVÉE DU MOTEUR V2)
                         photos = p.get('photos', {"Croissance": [], "Oeufs": []})
                         if st.session_state.role == "admin":
                             with st.expander("📤 Envoyer une photo depuis cet appareil"):
                                 up_file = st.file_uploader("Choisir un fichier", type=['jpg', 'jpeg', 'png'])
                                 album = st.selectbox("Album", ["Croissance", "Oeufs"])
-                                if up_file and st.button("Lancer l'envoi"):
+                                if up_file and st.button("Lancer l'envoi vers GitHub"):
                                     f_name = f"{p['nom']}_{album}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
                                     if upload_image_github(up_file.getvalue(), f_name):
                                         photos[album].append(f_name)
                                         sauvegarder_donnees_github(st.session_state.basse_cour)
-                                        st.success("Image sauvegardée sur GitHub !")
+                                        st.success("Image sauvegardée !")
                                         st.rerun()
 
                         c1, c2 = st.columns(2)
@@ -187,10 +224,33 @@ with main_zone.container():
                                     url = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{img}"
                                     st.image(url, use_container_width=True)
 
-                    with t3:
-                        st.write(f"**Mère :** {p.get('mere', '?')} | **Père :** {p.get('pere', '?')}")
-                        enf = [e["nom"] for e in st.session_state.basse_cour if e["mere"].lower() == p["nom"].lower() or e["pere"].lower() == p["nom"].lower()]
-                        if enf: st.write(f"**Enfants :** {', '.join(enf)}")
+                    with tab3:
+                        # RETOUR DE LA GÉNÉALOGIE CLIQUABLE STYLE V1
+                        st.subheader("Parents")
+                        cp1, cp2 = st.columns(2)
+                        noms_existants = [x['nom'].lower() for x in st.session_state.basse_cour]
+                        
+                        for label, cle, col in [("Mère", "mere", cp1), ("Père", "pere", cp2)]:
+                            nom_parent = p.get(cle, "?")
+                            with col:
+                                if nom_parent and nom_parent != "?" and nom_parent.lower() in noms_existants:
+                                    st.button(f"🔍 {nom_parent}", key=f"btn_{cle}_{p['nom']}", 
+                                              on_click=naviguer_vers_poule_callback, args=(nom_parent,))
+                                else:
+                                    st.write(f"{label} : {nom_parent if nom_parent else '?'}")
+
+                        st.divider()
+                        st.subheader("Enfants")
+                        enfants = [e["nom"] for e in st.session_state.basse_cour 
+                                   if e.get("mere", "").lower() == p["nom"].lower() 
+                                   or e.get("pere", "").lower() == p["nom"].lower()]
+                        
+                        if enfants:
+                            for enfant in enfants:
+                                st.button(f"🐣 {enfant}", key=f"btn_child_{enfant}", 
+                                          on_click=naviguer_vers_poule_callback, args=(enfant,))
+                        else:
+                            st.write("Aucun enfant répertorié.")
                     break
 
     # --- OPTION 2 : LISTE COMPLÈTE ---
