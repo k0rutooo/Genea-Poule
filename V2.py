@@ -190,64 +190,81 @@ with main_zone.container():
                     with tab1:
                         col_pic, col_data = st.columns([1, 2])
                         
-                        # --- AFFICHAGE PROFIL & OEUF (Format Carré via CSS) ---
+                        # --- AFFICHAGE PROFIL & OEUF ---
                         with col_pic:
                             if p.get('photo_profil'):
                                 url_prof = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{p['photo_profil']}"
                                 st.markdown(f'<img src="{url_prof}" class="square-img" style="width:100%;">', unsafe_allow_html=True)
+                            
                             if p.get('photo_oeuf'):
+                                st.write("---")
                                 url_oeuf = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{p['photo_oeuf']}"
-                                st.markdown(f'<br><img src="{url_oeuf}" class="square-img" style="width:100px;">', unsafe_allow_html=True)
+                                # Utilisation de use_container_width pour permettre le zoom natif au clic
+                                st.image(url_oeuf, caption="Type d'œuf (Cliquer pour agrandir)", use_container_width=False, width=150)
 
                         with col_data:
                             st.write(f"**Sexe :** {p['sexe']} | **Âge :** {age_v if age_v is not None else '?'} an(s)")
                             st.info(f"**Notes :** {p.get('notes', '...')}")
 
-                        # --- OUTIL DE RECADRAGE VISUEL (ADMIN) ---
+                        # --- OUTIL DE RECADRAGE AVEC ROTATION (ADMIN) ---
                         if st.session_state.role == "admin":
-                            with st.expander("🎯 Créer une photo de profil (Recadrage)"):
-                                st.write("1. Cliquez sur une photo de la galerie :")
+                            st.divider()
+                            # Sélecteur de quel type de photo on veut créer
+                            mode_crop = st.radio("Que voulez-vous créer ?", ["Photo de Profil", "Photo de l'Oeuf"], horizontal=True)
+                            album_source = "Croissance" if mode_crop == "Photo de Profil" else "Oeufs"
+                            
+                            with st.expander(f"🎯 Configuration : {mode_crop}"):
+                                st.write("1. Choisissez une photo source :")
+                                photos_dispos = p['photos'][album_source]
                                 
-                                # Grille de sélection visuelle
-                                photos_dispos = p['photos']['Croissance']
                                 if photos_dispos:
+                                    # Grille de sélection
                                     cols_sel = st.columns(4)
                                     for idx, img_name in enumerate(photos_dispos):
                                         with cols_sel[idx % 4]:
-                                            url_thumb = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{img_name}"
-                                            st.image(url_thumb, use_container_width=True)
-                                            if st.button("Choisir", key=f"sel_{img_name}"):
+                                            url_t = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{img_name}"
+                                            st.image(url_t, use_container_width=True)
+                                            if st.button("Choisir", key=f"sel_{mode_crop}_{img_name}"):
                                                 st.session_state.img_to_crop = img_name
                                                 st.rerun()
-                                    
-                                    # Si une photo est sélectionnée, on ouvre le cropper
+
+                                    # Zone de travail si une photo est choisie
                                     if 'img_to_crop' in st.session_state:
                                         st.divider()
-                                        st.write(f"2. Ajustez le carré sur **{st.session_state.img_to_crop}** :")
-                                        
-                                        # On récupère l'image depuis GitHub pour le cropper
                                         img_url = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{st.session_state.img_to_crop}"
                                         import requests
                                         img_data = requests.get(img_url).content
                                         img_pil = Image.open(io.BytesIO(img_data))
-                                        
+
+                                        # --- AJOUT : ROTATION ---
+                                        angle = st.slider("Faire pivoter la photo (°)", 0, 270, 0, step=90)
+                                        if angle != 0:
+                                            img_pil = img_pil.rotate(-angle, expand=True)
+
+                                        st.write("2. Ajustez le cadrage carré :")
                                         # L'outil de recadrage
                                         cropped_img = st_cropper(img_pil, aspect_ratio=(1,1), box_color='#FF0000')
-                                        
-                                        if st.button("Valider ce cadrage"):
-                                            # Conversion de l'image recadrée en bytes pour GitHub
+
+                                        if st.button(f"Valider pour {mode_crop}"):
                                             buf = io.BytesIO()
-                                            cropped_img.save(buf, format="JPEG")
-                                            new_profile_name = f"profile_{p['nom']}.jpg"
+                                            # On sauvegarde en haute qualité
+                                            cropped_img.save(buf, format="JPEG", quality=95)
                                             
-                                            if upload_image_github(buf.getvalue(), new_profile_name):
-                                                p['photo_profil'] = new_profile_name
+                                            suffixe = "profile" if mode_crop == "Photo de Profil" else "oeuf"
+                                            new_name = f"{suffixe}_{p['nom']}_{datetime.now().strftime('%M%S')}.jpg"
+                                            
+                                            if upload_image_github(buf.getvalue(), new_name):
+                                                if mode_crop == "Photo de Profil":
+                                                    p['photo_profil'] = new_name
+                                                else:
+                                                    p['photo_oeuf'] = new_name
+                                                
                                                 sauvegarder_donnees_github(st.session_state.basse_cour)
                                                 del st.session_state.img_to_crop
-                                                st.success("Photo de profil mise à jour !")
+                                                st.success(f"{mode_crop} mise à jour !")
                                                 st.rerun()
                                 else:
-                                    st.warning("Ajoutez d'abord des photos dans la galerie.")
+                                    st.warning(f"L'album {album_source} est vide. Ajoutez des photos dans la galerie.")
 
                         with col_data:
                             st.write(f"**Sexe :** {p['sexe']}")
