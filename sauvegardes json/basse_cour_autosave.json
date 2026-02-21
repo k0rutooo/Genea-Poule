@@ -1,17 +1,5 @@
 [
     {
-        "nom": "Rocco",
-        "sexe": "Coq",
-        "pere": "?",
-        "mere": "?",
-        "notes": "grand rocco",
-        "naissance": "",
-        "photos": {
-            "Croissance": [],
-            "Oeufs": []
-        }
-    },
-    {
         "nom": "Nugget",
         "sexe": "Poule",
         "pere": "Rocco",
