@@ -253,29 +253,60 @@ with main_zone.container():
                             st.write("Aucun enfant répertorié.")
                     break
 
-    # --- OPTION 2 : LISTE COMPLÈTE ---
+    # --- OPTION 2 : LISTE COMPLÈTE (AVEC BACKUP ADMIN) ---
     elif menu == "Voir toute la liste":
         st.subheader("📋 Liste des résidents")
         for p in sorted(st.session_state.basse_cour, key=lambda x: x['nom'].lower()):
             c1, c2 = st.columns([4, 1])
             c1.write(f"**{p['nom']}** ({p['sexe']})")
             c2.button("Voir", key=f"l_{p['nom']}", on_click=naviguer_vers_poule_callback, args=(p['nom'],))
-
-    # --- OPTION 3 : ARBRE GÉNÉALOGIQUE ---
+        
+        # SECTION BACKUP - RÉSERVÉE À L'ADMIN
+        if st.session_state.role == "admin":
+            st.divider()
+            st.subheader("📦 Archivage et Sauvegarde")
+            st.write("Téléchargez une copie de vos données actuelles sur votre ordinateur.")
+            
+            # Préparation du JSON pour le téléchargement
+            json_string = json.dumps(st.session_state.basse_cour, indent=4, ensure_ascii=False)
+            
+            st.download_button(
+                label="📥 Sauvegarder un backup JSON sur mon PC",
+                data=json_string,
+                file_name=f"backup_basse_cour_{datetime.now().strftime('%d_%m_%Y_%Hh%M')}.json",
+                mime="application/json"
+            )
+    # --- OPTION 3 : ARBRE GÉNÉALOGIQUE (AVEC TÉLÉCHARGEMENT) ---
     elif menu == "Arbre Généalogique":
         st.header("🌳 Arbre de la Basse-Cour")
         with st.spinner("Construction du graphique..."):
             dot = graphviz.Digraph(format='png')
             dot.attr(rankdir='TB', size='10')
             noms_ok = [x['nom'].lower() for x in st.session_state.basse_cour]
+            
             for p in st.session_state.basse_cour:
                 age = calculer_age_automatique(p.get('naissance', ''))
                 color = "lightblue" if p['sexe'] == "Coq" else "lightpink"
                 shape = "box" if p['sexe'] == "Coq" else "ellipse"
-                dot.node(p['nom'], f"{p['nom']}\n({age if age is not None else '?'} ans)", style='filled', color=color, shape=shape)
+                dot.node(p['nom'], f"{p['nom']}\n({age if age is not None else '?'} ans)", 
+                         style='filled', color=color, shape=shape)
                 if p.get('mere', '').lower() in noms_ok: dot.edge(p['mere'], p['nom'])
                 if p.get('pere', '').lower() in noms_ok: dot.edge(p['pere'], p['nom'])
+            
+            # Affichage du graphique
             st.graphviz_chart(dot)
+            
+            # GÉNÉRATION DU BOUTON DE TÉLÉCHARGEMENT
+            try:
+                png_data = dot.pipe(format='png')
+                st.download_button(
+                    label="🖼️ Télécharger l'arbre en image (PNG)",
+                    data=png_data,
+                    file_name=f"arbre_genealogique_{datetime.now().strftime('%d_%m_%Y')}.png",
+                    mime="image/png"
+                )
+            except Exception as e:
+                st.warning("Le téléchargement de l'image est indisponible sur ce navigateur.")
 
     # --- OPTION 4 : STATISTIQUES ---
     elif menu == "Statistiques":
