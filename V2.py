@@ -5,6 +5,9 @@ import graphviz
 import base64
 from datetime import datetime
 from github import Github  # Rappel : Pip install PyGithub en local
+from streamlit_cropper import st_cropper
+from PIL import Image
+import io
 
 # --- 1. CONFIGURATION ET SECRETS ---
 st.set_page_config(page_title="Généa-Poules Cloud", page_icon="🐔", layout="wide")
@@ -163,29 +166,88 @@ with main_zone.container():
         if nom_cherche:
             for i, p in enumerate(st.session_state.basse_cour):
                 if p["nom"].lower() == nom_cherche.lower():
-                    # Initialisation des nouvelles clés si besoin
+                    # --- INITIALISATION DES CLÉS ---
                     if 'photo_profil' not in p: p['photo_profil'] = None
+                    if 'photo_oeuf' not in p: p['photo_oeuf'] = None
                     
                     age_v = calculer_age_automatique(p.get('naissance', ''))
                     st.header(f"✨ FICHE DE {p['nom'].upper()}")
+                    
+                    # CSS pour forcer le format CARRE (Crop visuel)
+                    st.markdown("""
+                        <style>
+                        .square-img {
+                            aspect-ratio: 1 / 1;
+                            object-fit: cover;
+                            border-radius: 15px;
+                            border: 2px solid #ddd;
+                        }
+                        </style>
+                        """, unsafe_allow_html=True)
+
                     tab1, tab2, tab3 = st.tabs(["📄 Informations", "📸 Galerie Photos", "🌳 Généalogie"])
 
                     with tab1:
-                        # --- MISE EN PAGE PROFIL ---
                         col_pic, col_data = st.columns([1, 2])
                         
+                        # --- AFFICHAGE PROFIL & OEUF (Format Carré via CSS) ---
                         with col_pic:
-                            if p['photo_profil']:
+                            if p.get('photo_profil'):
                                 url_prof = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{p['photo_profil']}"
-                                st.image(url_prof, caption="Photo de profil", use_container_width=True)
-                            else:
-                                st.info("Pas de photo de profil")
-                            
-                            # Affichage de l'œuf (le dernier ajouté dans l'album Oeufs)
-                            if p['photos']['Oeufs']:
-                                dernier_oeuf = p['photos']['Oeufs'][-1]
-                                url_oeuf = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{dernier_oeuf}"
-                                st.image(url_oeuf, caption="Type d'œuf", width=150)
+                                st.markdown(f'<img src="{url_prof}" class="square-img" style="width:100%;">', unsafe_allow_html=True)
+                            if p.get('photo_oeuf'):
+                                url_oeuf = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{p['photo_oeuf']}"
+                                st.markdown(f'<br><img src="{url_oeuf}" class="square-img" style="width:100px;">', unsafe_allow_html=True)
+
+                        with col_data:
+                            st.write(f"**Sexe :** {p['sexe']} | **Âge :** {age_v if age_v is not None else '?'} an(s)")
+                            st.info(f"**Notes :** {p.get('notes', '...')}")
+
+                        # --- OUTIL DE RECADRAGE VISUEL (ADMIN) ---
+                        if st.session_state.role == "admin":
+                            with st.expander("🎯 Créer une photo de profil (Recadrage)"):
+                                st.write("1. Cliquez sur une photo de la galerie :")
+                                
+                                # Grille de sélection visuelle
+                                photos_dispos = p['photos']['Croissance']
+                                if photos_dispos:
+                                    cols_sel = st.columns(4)
+                                    for idx, img_name in enumerate(photos_dispos):
+                                        with cols_sel[idx % 4]:
+                                            url_thumb = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{img_name}"
+                                            st.image(url_thumb, use_container_width=True)
+                                            if st.button("Choisir", key=f"sel_{img_name}"):
+                                                st.session_state.img_to_crop = img_name
+                                                st.rerun()
+                                    
+                                    # Si une photo est sélectionnée, on ouvre le cropper
+                                    if 'img_to_crop' in st.session_state:
+                                        st.divider()
+                                        st.write(f"2. Ajustez le carré sur **{st.session_state.img_to_crop}** :")
+                                        
+                                        # On récupère l'image depuis GitHub pour le cropper
+                                        img_url = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{st.session_state.img_to_crop}"
+                                        import requests
+                                        img_data = requests.get(img_url).content
+                                        img_pil = Image.open(io.BytesIO(img_data))
+                                        
+                                        # L'outil de recadrage
+                                        cropped_img = st_cropper(img_pil, aspect_ratio=(1,1), box_color='#FF0000')
+                                        
+                                        if st.button("Valider ce cadrage"):
+                                            # Conversion de l'image recadrée en bytes pour GitHub
+                                            buf = io.BytesIO()
+                                            cropped_img.save(buf, format="JPEG")
+                                            new_profile_name = f"profile_{p['nom']}.jpg"
+                                            
+                                            if upload_image_github(buf.getvalue(), new_profile_name):
+                                                p['photo_profil'] = new_profile_name
+                                                sauvegarder_donnees_github(st.session_state.basse_cour)
+                                                del st.session_state.img_to_crop
+                                                st.success("Photo de profil mise à jour !")
+                                                st.rerun()
+                                else:
+                                    st.warning("Ajoutez d'abord des photos dans la galerie.")
 
                         with col_data:
                             st.write(f"**Sexe :** {p['sexe']}")
@@ -193,32 +255,33 @@ with main_zone.container():
                             st.write(f"**Date de naissance :** {p.get('naissance', 'Non renseignée')}")
                             st.info(f"**Notes :** \n{p.get('notes', '...')}")
 
-                        # --- ACTIONS ADMIN ---
+                        # --- NOUVELLE FONCTION : CHOIX RAPIDE (ADMIN SEUL) ---
                         if st.session_state.role == "admin":
-                            st.divider()
-                            c_mod, c_del = st.columns(2)
-                            with c_mod:
-                                with st.expander("📝 Modifier la fiche"):
-                                    with st.form(f"mod_{p['nom']}"):
-                                        ca, cb = st.columns(2)
-                                        n_nom = ca.text_input("Nom", value=p['nom'])
-                                        n_sexe = ca.selectbox("Sexe", ["Poule", "Coq"], index=0 if p['sexe']=="Poule" else 1)
-                                        n_naiss = ca.text_input("Naissance (JJ/MM/AAAA)", value=p.get('naissance', ''))
-                                        
-                                        # Choix de la photo de profil parmi l'album Croissance
-                                        toutes_photos = p['photos']['Croissance']
-                                        n_prof = cb.selectbox("Photo de profil", [None] + toutes_photos, 
-                                                              index=([None] + toutes_photos).index(p['photo_profil']))
-                                        
-                                        n_mere = cb.text_input("Mère", value=p.get('mere', ''))
-                                        n_pere = cb.text_input("Père", value=p.get('pere', ''))
-                                        n_notes = st.text_area("Notes", value=p.get('notes', ''))
-                                        
-                                        if st.form_submit_button("Sauvegarder"):
-                                            p.update({"nom": n_nom, "sexe": n_sexe, "naissance": n_naiss, 
-                                                      "mere": n_mere, "pere": n_pere, "notes": n_notes, "photo_profil": n_prof})
-                                            sauvegarder_donnees_github(st.session_state.basse_cour)
-                                            st.rerun()
+                            with st.expander("🎯 Définir les photos (Profil & Œuf)"):
+                                c_sel1, c_sel2 = st.columns(2)
+                                
+                                # Sélecteur Profil (parmi l'album Croissance)
+                                liste_croissance = [None] + p['photos']['Croissance']
+                                current_prof_idx = liste_croissance.index(p['photo_profil']) if p['photo_profil'] in liste_croissance else 0
+                                new_prof = c_sel1.selectbox("Photo de profil", liste_croissance, index=current_prof_idx)
+                                
+                                # Sélecteur Oeuf (parmi l'album Oeufs)
+                                liste_oeufs = [None] + p['photos']['Oeufs']
+                                current_oeuf_idx = liste_oeufs.index(p['photo_oeuf']) if p['photo_oeuf'] in liste_oeufs else 0
+                                new_oeuf = c_sel2.selectbox("Photo de l'œuf", liste_oeufs, index=current_oeuf_idx)
+                                
+                                if st.button("Appliquer les sélections"):
+                                    p['photo_profil'] = new_prof
+                                    p['photo_oeuf'] = new_oeuf
+                                    sauvegarder_donnees_github(st.session_state.basse_cour)
+                                    st.success("Photos de profil mises à jour !")
+                                    st.rerun()
+
+                            # Bouton supprimer classique (en bas)
+                            if st.button(f"🗑️ Supprimer définitivement {p['nom']}"):
+                                st.session_state.basse_cour.pop(i)
+                                sauvegarder_donnees_github(st.session_state.basse_cour)
+                                st.rerun()
 
                     with tab2:
                         # --- GESTION DE LA GALERIE ---
