@@ -67,6 +67,17 @@ def upload_image_github(file_bytes, file_name):
         st.error(f"Erreur lors de l'envoi de l'image : {e}")
         return False
 
+def supprimer_image_github(file_name):
+    """Supprime physiquement le fichier image sur GitHub"""
+    try:
+        repo = get_repo()
+        contents = repo.get_contents(f"images/{file_name}")
+        repo.delete_file(contents.path, f"Suppression de {file_name}", contents.sha)
+        return True
+    except Exception as e:
+        st.error(f"Erreur lors de la suppression sur GitHub : {e}")
+        return False
+
 # --- 3. LOGIQUE MÉTIER (Migration & Âge) ---
 
 def migrer_donnees(liste):
@@ -85,6 +96,7 @@ def migrer_donnees(liste):
             anciennes = p.get('photos', []) if isinstance(p.get('photos'), list) else []
             p['photos'] = {"Croissance": anciennes, "Oeufs": []}
             modifie = True
+        if 'photo_profil' not in p: p['photo_profil'] = None
     return liste
 
 def calculer_age_automatique(date_str):
@@ -151,88 +163,101 @@ with main_zone.container():
         if nom_cherche:
             for i, p in enumerate(st.session_state.basse_cour):
                 if p["nom"].lower() == nom_cherche.lower():
+                    # Initialisation des nouvelles clés si besoin
+                    if 'photo_profil' not in p: p['photo_profil'] = None
+                    
                     age_v = calculer_age_automatique(p.get('naissance', ''))
                     st.header(f"✨ FICHE DE {p['nom'].upper()}")
-                    
-                    # RETOUR AUX NOMS D'ONGLETS V1
-                    tab1, tab2, tab3 = st.tabs(["📄 Informations", "📸 Albums Photos", "🌳 Généalogie"])
+                    tab1, tab2, tab3 = st.tabs(["📄 Informations", "📸 Galerie Photos", "🌳 Généalogie"])
 
                     with tab1:
-                        # AFFICHAGE INFOS STYLE V1
-                        st.write(f"**Sexe :** {p['sexe']}")
-                        st.write(f"**Âge :** {age_v if age_v is not None else '?'} an(s)")
-                        st.write(f"**Date de naissance :** {p.get('naissance', 'Non renseignée')}")
+                        # --- MISE EN PAGE PROFIL ---
+                        col_pic, col_data = st.columns([1, 2])
                         
-                        st.info(f"**Notes :** \n{p.get('notes', '...')}")
-                        
-                        # RETOUR DES BOUTONS ADMIN EN 2 COLONNES AVEC EXPANDERS
+                        with col_pic:
+                            if p['photo_profil']:
+                                url_prof = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{p['photo_profil']}"
+                                st.image(url_prof, caption="Photo de profil", use_container_width=True)
+                            else:
+                                st.info("Pas de photo de profil")
+                            
+                            # Affichage de l'œuf (le dernier ajouté dans l'album Oeufs)
+                            if p['photos']['Oeufs']:
+                                dernier_oeuf = p['photos']['Oeufs'][-1]
+                                url_oeuf = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{dernier_oeuf}"
+                                st.image(url_oeuf, caption="Type d'œuf", width=150)
+
+                        with col_data:
+                            st.write(f"**Sexe :** {p['sexe']}")
+                            st.write(f"**Âge :** {age_v if age_v is not None else '?'} an(s)")
+                            st.write(f"**Date de naissance :** {p.get('naissance', 'Non renseignée')}")
+                            st.info(f"**Notes :** \n{p.get('notes', '...')}")
+
+                        # --- ACTIONS ADMIN ---
                         if st.session_state.role == "admin":
+                            st.divider()
                             c_mod, c_del = st.columns(2)
                             with c_mod:
-                                with st.expander("📝 Modifier"):
+                                with st.expander("📝 Modifier la fiche"):
                                     with st.form(f"mod_{p['nom']}"):
                                         ca, cb = st.columns(2)
                                         n_nom = ca.text_input("Nom", value=p['nom'])
-                                        n_sexe = ca.selectbox("Sexe", ["Poule", "Coq"], index=0 if p.get('sexe') == "Poule" else 1)
+                                        n_sexe = ca.selectbox("Sexe", ["Poule", "Coq"], index=0 if p['sexe']=="Poule" else 1)
                                         n_naiss = ca.text_input("Naissance (JJ/MM/AAAA)", value=p.get('naissance', ''))
+                                        
+                                        # Choix de la photo de profil parmi l'album Croissance
+                                        toutes_photos = p['photos']['Croissance']
+                                        n_prof = cb.selectbox("Photo de profil", [None] + toutes_photos, 
+                                                              index=([None] + toutes_photos).index(p['photo_profil']))
+                                        
                                         n_mere = cb.text_input("Mère", value=p.get('mere', ''))
                                         n_pere = cb.text_input("Père", value=p.get('pere', ''))
                                         n_notes = st.text_area("Notes", value=p.get('notes', ''))
-                                        if st.form_submit_button("Enregistrer les modifications"):
-                                            p.update({
-                                                "nom": n_nom, 
-                                                "sexe": n_sexe, 
-                                                "naissance": n_naiss, 
-                                                "mere": n_mere, 
-                                                "pere": n_pere, 
-                                                "notes": n_notes
-                                            })
+                                        
+                                        if st.form_submit_button("Sauvegarder"):
+                                            p.update({"nom": n_nom, "sexe": n_sexe, "naissance": n_naiss, 
+                                                      "mere": n_mere, "pere": n_pere, "notes": n_notes, "photo_profil": n_prof})
                                             sauvegarder_donnees_github(st.session_state.basse_cour)
-                                            st.session_state.poule_selectionnee = n_nom
-                                            st.success("Fiche mise à jour sur GitHub !")
                                             st.rerun()
-                            
-                            with c_del:
-                                with st.expander("⚠️ Supprimer"):
-                                    st.write(f"Voulez-vous vraiment supprimer la fiche de {p['nom']} ?")
-                                    if st.button(f"Confirmer la suppression", key=f"del_{p['nom']}"):
-                                        st.session_state.basse_cour.pop(i)
-                                        sauvegarder_donnees_github(st.session_state.basse_cour)
-                                        st.session_state.poule_selectionnee = None
-                                        st.rerun()
 
                     with tab2:
-                        photos = p.get('photos', {"Croissance": [], "Oeufs": []})
+                        # --- GESTION DE LA GALERIE ---
+                        st.subheader("📸 Album Croissance")
+                        
+                        # Upload
                         if st.session_state.role == "admin":
-                            with st.expander("📤 Envoyer des photos (plusieurs possibles)"):
-                                # On active le multi-upload ici
-                                up_files = st.file_uploader("Choisir les fichiers", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
-                                album = st.selectbox("Album", ["Croissance", "Oeufs"])
-                                
-                                if up_files and st.button("Lancer l'envoi groupé"):
-                                    succes_count = 0
-                                    with st.spinner(f"Envoi de {len(up_files)} photos vers GitHub..."):
-                                        for up_file in up_files:
-                                            # On génère un nom unique pour chaque photo (nom + timestamp + index)
-                                            f_name = f"{p['nom']}_{album}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{succes_count}.jpg"
-                                            
-                                            if upload_image_github(up_file.getvalue(), f_name):
-                                                photos[album].append(f_name)
-                                                succes_count += 1
-                                    
-                                    # On ne sauvegarde le JSON qu'une seule fois à la fin de la boucle
-                                    if succes_count > 0:
-                                        sauvegarder_donnees_github(st.session_state.basse_cour)
-                                        st.success(f"✅ {succes_count} photo(s) ajoutée(s) avec succès !")
-                                        st.rerun()
+                            with st.expander("📤 Ajouter des photos"):
+                                up_files = st.file_uploader("Fichiers", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
+                                album_target = st.selectbox("Destination", ["Croissance", "Oeufs"])
+                                if up_files and st.button("Envoyer"):
+                                    for up_file in up_files:
+                                        f_name = f"{p['nom']}_{album_target}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{up_file.name}"
+                                        if upload_image_github(up_file.getvalue(), f_name):
+                                            p['photos'][album_target].append(f_name)
+                                    sauvegarder_donnees_github(st.session_state.basse_cour)
+                                    st.rerun()
 
-                        c1, c2 = st.columns(2)
-                        for cat, col in zip(["Croissance", "Oeufs"], [c1, c2]):
-                            with col:
-                                st.subheader(cat)
-                                for img in photos[cat]:
+                        # Tri et Affichage
+                        album_croissance = p['photos']['Croissance']
+                        if album_croissance:
+                            ordre = st.radio("Trier par :", ["Plus récent", "Plus ancien"], horizontal=True)
+                            photos_triees = sorted(album_croissance, reverse=(ordre == "Plus récent"))
+                            
+                            # Affichage en grille (3 colonnes)
+                            cols = st.columns(3)
+                            for idx, img in enumerate(photos_triees):
+                                with cols[idx % 3]:
                                     url = f"https://raw.githubusercontent.com/{REPO_NAME}/main/images/{img}"
                                     st.image(url, use_container_width=True)
+                                    if st.session_state.role == "admin":
+                                        if st.button("🗑️", key=f"del_{img}"):
+                                            if supprimer_image_github(img):
+                                                p['photos']['Croissance'].remove(img)
+                                                if p['photo_profil'] == img: p['photo_profil'] = None
+                                                sauvegarder_donnees_github(st.session_state.basse_cour)
+                                                st.rerun()
+                        else:
+                            st.write("Aucune photo dans cet album.")
 
                     with tab3:
                         # RETOUR DE LA GÉNÉALOGIE CLIQUABLE STYLE V1
