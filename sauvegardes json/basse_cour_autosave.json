@@ -23,7 +23,8 @@
             "Oeufs": [
                 "Nugget_Oeufs_20260221_103406.jpg"
             ]
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Chewbacca",
@@ -37,7 +38,8 @@
             "Oeufs": [
                 "Chewbacca_Oeufs_20260221_102523.jpg"
             ]
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Yama",
@@ -51,7 +53,8 @@
                 "Yama_Oeufs_20260221_103231.jpg"
             ]
         },
-        "naissance": "02/01/2025"
+        "naissance": "02/01/2025",
+        "photo_profil": null
     },
     {
         "nom": "Conasse",
@@ -62,7 +65,6 @@
         "photos": {
             "Croissance": [
                 "Conasse_Croissance_20260219_124018.jpg",
-                "Conasse_Croissance_20260219_124053.jpg",
                 "Conasse_Croissance_20260219_124125.jpg",
                 "Conasse_Croissance_20260221_163814.jpg"
             ],
@@ -70,7 +72,8 @@
                 "Conasse_Oeufs_20260221_102355.jpg"
             ]
         },
-        "naissance": ""
+        "naissance": "",
+        "photo_profil": null
     },
     {
         "nom": "Big Mama",
@@ -84,7 +87,8 @@
             "Oeufs": [
                 "Big Mama_Oeufs_20260221_102904.jpg"
             ]
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Kazi",
@@ -100,7 +104,8 @@
             "Oeufs": [
                 "Kazi_Oeufs_20260221_103322.jpg"
             ]
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Condor",
@@ -112,7 +117,8 @@
         "photos": {
             "Croissance": [],
             "Oeufs": []
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Omelette",
@@ -128,7 +134,8 @@
                 "Omelette_Croissance_20260219_123928.jpg"
             ],
             "Oeufs": []
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Faucon",
@@ -142,7 +149,8 @@
             "Oeufs": [
                 "Faucon_Oeufs_20260221_102802.jpg"
             ]
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Divo (changer)",
@@ -157,7 +165,8 @@
                 "Divo (changer)_Croissance_20260219_124202.jpg"
             ],
             "Oeufs": []
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Faisan",
@@ -171,7 +180,8 @@
             "Oeufs": [
                 "Faisan_Oeufs_20260221_103006.jpg"
             ]
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Mercredi",
@@ -183,7 +193,8 @@
         "photos": {
             "Croissance": [],
             "Oeufs": []
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Ukrainienne",
@@ -197,7 +208,8 @@
             "Oeufs": [
                 "Ukrainienne_Oeufs_20260221_103056.jpg"
             ]
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Roumaine",
@@ -211,7 +223,8 @@
             "Oeufs": [
                 "Roumaine_Oeufs_20260221_103139.jpg"
             ]
-        }
+        },
+        "photo_profil": null
     },
     {
         "nom": "Rocco",
@@ -223,6 +236,7 @@
             "Croissance": [],
             "Oeufs": []
         },
-        "notes": "Grand Rocco"
+        "notes": "Grand Rocco",
+        "photo_profil": null
     }
 ]
