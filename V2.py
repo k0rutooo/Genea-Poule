@@ -201,7 +201,7 @@ with main_zone.container():
                                         st.session_state.poule_selectionnee = None
                                         st.rerun()
 
-                    with t2:
+                    with tab2:
                         photos = p.get('photos', {"Croissance": [], "Oeufs": []})
                         if st.session_state.role == "admin":
                             with st.expander("📤 Envoyer des photos (plusieurs possibles)"):
