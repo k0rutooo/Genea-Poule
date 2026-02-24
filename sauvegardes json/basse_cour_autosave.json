@@ -160,12 +160,17 @@
         "pere": "",
         "notes": "",
         "photos": {
-            "Croissance": [],
+            "Croissance": [
+                "Faucon_Croissance_20260224_171922_IMG_9570.JPG",
+                "Faucon_Croissance_20260224_171925_IMG_9572.JPG",
+                "Faucon_Croissance_20260224_171927_IMG_9576.JPG"
+            ],
             "Oeufs": [
                 "Faucon_Oeufs_20260221_102802.jpg"
             ]
         },
-        "photo_profil": null
+        "photo_profil": null,
+        "photo_oeuf": null
     },
     {
         "nom": "Divo (changer)",
