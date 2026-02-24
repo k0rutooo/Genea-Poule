@@ -146,11 +146,17 @@
             "Croissance": [
                 "Omelette_Croissance_20260219_123856.jpg",
                 "Omelette_Croissance_20260219_123912.jpg",
-                "Omelette_Croissance_20260219_123928.jpg"
+                "Omelette_Croissance_20260219_123928.jpg",
+                "Omelette_Croissance_20260224_172143_IMG_9435-e.JPG",
+                "Omelette_Croissance_20260224_172145_IMG_9578.JPG",
+                "Omelette_Croissance_20260224_172147_IMG_9580.JPG",
+                "Omelette_Croissance_20260224_172150_IMG_9581.JPG",
+                "Omelette_Croissance_20260224_172152_IMG_9589.JPG"
             ],
             "Oeufs": []
         },
-        "photo_profil": null
+        "photo_profil": null,
+        "photo_oeuf": null
     },
     {
         "nom": "Faucon",
