@@ -268,10 +268,14 @@
         "mere": "?",
         "pere": "?",
         "photos": {
-            "Croissance": [],
+            "Croissance": [
+                "Rocco_Croissance_20260224_172639_IMG_9399-e.JPG",
+                "Rocco_Croissance_20260224_172641_IMG_9428-e.JPG"
+            ],
             "Oeufs": []
         },
         "notes": "Grand Rocco",
-        "photo_profil": null
+        "photo_profil": null,
+        "photo_oeuf": null
     }
 ]
