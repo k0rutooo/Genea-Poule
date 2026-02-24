@@ -31,12 +31,19 @@
         "naissance": "",
         "notes": "",
         "photos": {
-            "Croissance": [],
+            "Croissance": [
+                "Chewbacca_Croissance_20260224_171634_IMG_9526.JPG",
+                "Chewbacca_Croissance_20260224_171636_IMG_9531.JPG",
+                "Chewbacca_Croissance_20260224_171638_IMG_9537.JPG",
+                "Chewbacca_Croissance_20260224_171640_IMG_9606.JPG",
+                "Chewbacca_Croissance_20260224_171643_IMG_9612.JPG"
+            ],
             "Oeufs": [
                 "Chewbacca_Oeufs_20260221_102523.jpg"
             ]
         },
-        "photo_profil": null
+        "photo_profil": null,
+        "photo_oeuf": null
     },
     {
         "nom": "Yama",
