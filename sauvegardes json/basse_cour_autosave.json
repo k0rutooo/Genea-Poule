@@ -123,10 +123,17 @@
         "pere": "",
         "notes": "",
         "photos": {
-            "Croissance": [],
+            "Croissance": [
+                "Condor_Croissance_20260224_171809_IMG_9123-e.jpg",
+                "Condor_Croissance_20260224_171811_IMG_9567.JPG",
+                "Condor_Croissance_20260224_171813_IMG_9575.JPG",
+                "Condor_Croissance_20260224_171816_IMG_9595.JPG",
+                "Condor_Croissance_20260224_171818_IMG_9596.JPG"
+            ],
             "Oeufs": []
         },
-        "photo_profil": null
+        "photo_profil": null,
+        "photo_oeuf": null
     },
     {
         "nom": "Omelette",
