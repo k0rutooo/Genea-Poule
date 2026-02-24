@@ -177,12 +177,19 @@
         "pere": "",
         "notes": "",
         "photos": {
-            "Croissance": [],
+            "Croissance": [
+                "Faisan_Croissance_20260224_171341_IMG_9402.JPG",
+                "Faisan_Croissance_20260224_171344_IMG_9430-e.JPG",
+                "Faisan_Croissance_20260224_171346_IMG_9432.JPG",
+                "Faisan_Croissance_20260224_171348_IMG_9442-e.JPG",
+                "Faisan_Croissance_20260224_171350_IMG_9517.JPG"
+            ],
             "Oeufs": [
                 "Faisan_Oeufs_20260221_103006.jpg"
             ]
         },
-        "photo_profil": null
+        "photo_profil": null,
+        "photo_oeuf": null
     },
     {
         "nom": "Mercredi",
