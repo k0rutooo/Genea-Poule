@@ -52,13 +52,19 @@
         "pere": "",
         "notes": "pond des oeufs bleu/vert et vole très bien (trop bien même)",
         "photos": {
-            "Croissance": [],
+            "Croissance": [
+                "Yama_Croissance_20260224_173227_IMG_9409.JPG",
+                "Yama_Croissance_20260224_173229_IMG_9458-e.JPG",
+                "Yama_Croissance_20260224_173231_IMG_9521.JPG",
+                "Yama_Croissance_20260224_173233_IMG_9541.JPG"
+            ],
             "Oeufs": [
                 "Yama_Oeufs_20260221_103231.jpg"
             ]
         },
         "naissance": "02/01/2025",
-        "photo_profil": null
+        "photo_profil": null,
+        "photo_oeuf": null
     },
     {
         "nom": "Conasse",
